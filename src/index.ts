@@ -1,37 +1,87 @@
 import express, { Express, Request, Response ,NextFunction, Application } from 'express';
 import connectdb from './config/database';
 import d_user  from './database/dUser';
-import {validateSignUp} from './helpers/validatorHelper'; 
+import {validateSignUp, validateLogIn} from './helpers/validatorHelper'; 
+import { signUp, validatePassword } from './helpers/auth';
+import  jwt  from 'jsonwebtoken';
+import cookieParser from 'cookie-parser';
+import { authMiddle } from './middleware/authMiddleware';
 
 const app : Application = express() ;
 
-app.all('/', express.json());
+app.use(express.json());
+app.use(cookieParser());
+app.use(express.urlencoded({ extended: true }));
 
-app.get('/signup', (req: Request, res : Response) => { 
+app.post('/signup', async (req: Request, res : Response) => { 
 
-    validateSignUp(req);
-    
+    console.log(req.body)
+
     try{
-    const {email, password, Firstname, Lastname} = req.body; 
+        validateSignUp(req);
 
-    const user = new d_user({email, password, Firstname, Lastname});
-    user.save();
-    }
+        const {email, password, Firstname, Lastname, age} = req.body; 
+
+        const hashedPassword = await signUp(password);
+
+        const user = await new d_user({email, password: hashedPassword, Firstname, Lastname, age});
+
+        await user.save();
+
+        res.send('Sign up successful')
+
+        }
     catch(error : any) {
-        res.status(401).send('Unknown error occured');
+        
+        res.status(401).send(error);
     }
 })
 
-app.get('/feed', (req: Request, res: Response) => {
+app.post('/login', async (req: Request, res : Response) => {
 
     try { 
-    const all_user = d_user.find({}) || {} ;
-    res.send(all_user); } 
+        validateLogIn(req) ;
+        const {email, password} = req.body
+        const findUser = await d_user.findOne({email}) ; 
 
-    catch(error : any) { 
-        res.status(401).send(error);
-    }  
+        if (!findUser) {throw new Error('Invalid Credentials')}
+
+        const token = await validatePassword(findUser, password)   
+        
+        res.cookie('token',token, {expires: new Date(Date.now() + 8*3600000) })
+        res.send('Login successful');
+    }
+    catch(error : any) {
+        res.status(401).send('Invalid Credentials');
+    }
 })
+
+app.get('/profile', authMiddle,async (req: Request, res : Response) => {
+    try { 
+        const user= req.user;
+        res.send(user);
+    }
+
+    catch(error) {
+        res.status(401).send(error);
+    }
+})
+
+app.patch('/updateProfile', async (req: Request, res : Response) => { 
+
+
+    try { 
+        const body = req.body ;
+
+        const findUser = d_user.findByIdAndUpdate(body);
+        res.send('Update successful');
+
+    }
+    catch(error : any)  { 
+        res.status(401).send('Internal Server Error'); 
+    }
+})
+
 
 app.use('/', (req: Request, res: Response) => {
     console.log(req.params);
@@ -49,4 +99,3 @@ app.listen(3333, () => {
 }).catch((error) => {
     console.log("Error in connecting to database");
 })
-

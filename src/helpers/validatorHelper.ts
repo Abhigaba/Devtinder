@@ -24,3 +24,12 @@ export const validateSignUp = (req : Request) => {
     return true;
     
 }
+
+export const validateLogIn = (req: Request) => {
+
+    const {email, password} = req.body ; 
+
+    if (!validator.isEmail(email) ) { 
+        throw new Error('Invalid Credentials');
+    }
+}
