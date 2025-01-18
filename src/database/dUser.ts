@@ -9,7 +9,8 @@ interface user {
     imageUrl: string;
     age: number;
     gender: string;
-    skills: [string]
+    skills: [string];
+    about: String
 }
 
 const userSchema = new mongoose.Schema<user>({
@@ -53,7 +54,7 @@ const userSchema = new mongoose.Schema<user>({
 
     imageUrl : {
         type: String, 
-        default: "",
+        default: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRk23C2TJSGGhXWgGy_tSnCEsk3ek6_VqW6oQ&s",
         trim: true,
         validate: {
             validator : function(s: string) {
@@ -69,8 +70,15 @@ const userSchema = new mongoose.Schema<user>({
         min: 18,
         max: 100
     },
+    about: {
+        type: String, 
+        default : "" ,
+        min : 20, 
+        max: 500,
+    },
     gender: {
         type: String,
+        default: "other",
         enum: {
             values: ['male', 'female', 'transgender', 'other'],
             message: '{VALUE} is not supported',
@@ -78,6 +86,7 @@ const userSchema = new mongoose.Schema<user>({
     },
     skills : {
         type : [String],
+        default: [],
         validate: {
             validator : function(s: string[]) {
                 return s.length <= 10;
