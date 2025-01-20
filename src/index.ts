@@ -3,8 +3,9 @@ import connectdb from './config/database';
 import d_user  from './database/dUser';
 import { authRouter } from './routes/auth';
 import { profileRouter } from './routes/profile';
+import { requestRouter } from './routes/request';
 import cookieParser from 'cookie-parser';
-import { authMiddle } from './middleware/authMiddleware';
+
 
 const app : Application = express() ;
 
@@ -14,7 +15,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use('/',authRouter);
 app.use('/profile', profileRouter)
-
+app.use("/request", requestRouter)
 
 
 app.patch('/updateProfile', async (req: Request, res : Response) => { 

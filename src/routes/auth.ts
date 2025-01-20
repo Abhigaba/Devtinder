@@ -1,10 +1,11 @@
 import  express, {Request, Response, NextFunction}  from "express";
 import { validateSignUp, validateLogIn } from "../helpers/validatorHelper";
 import { validatePassword } from "../helpers/auth";
+import {validChangePassword} from "../helpers/validatorHelper";
 
 import { signUp } from "../helpers/auth";
 import d_user from "../database/dUser";
-import { hash } from "bcrypt";
+
 
 export const authRouter = express.Router() 
 
@@ -24,7 +25,7 @@ authRouter.post('/signup', async (req: Request, res : Response) => {
         const user = await new d_user({...req.body, password: hashedPassword});
 
         await user.save();
-        
+
         res.send('Sign up successful')
         }
     catch(error : any) {
@@ -51,7 +52,6 @@ authRouter.post('/login', async (req: Request, res : Response) => {
     }
 })
 
-
 authRouter.post('/logout' , async (req: Request, res : Response) =>{
 
     res.cookie('token', null, {expires: new Date(Date.now())})
@@ -60,3 +60,10 @@ authRouter.post('/logout' , async (req: Request, res : Response) =>{
     })
 })
 
+authRouter.patch('/forgotPassword', async (req: Request, res : Response) => {
+    
+    if (!validChangePassword(req)) {
+        res.status(401).send('Invalid Password');
+    }
+
+})
