@@ -30,7 +30,7 @@ const connectionSchema = new mongoose.Schema<Connection>({
     }
 )
 
-connectionSchema.index({senderId: 1, receiverId: 1}, {unique: true});
+connectionSchema.index({senderId: 1, receiverId: 1});
 
 connectionSchema.pre<Connection>('save', function(next) : void{
     
