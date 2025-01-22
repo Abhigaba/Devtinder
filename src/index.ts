@@ -5,7 +5,7 @@ import { authRouter } from './routes/auth';
 import { profileRouter } from './routes/profile';
 import { requestRouter } from './routes/request';
 import cookieParser from 'cookie-parser';
-
+import { userRouter } from './routes/user';
 
 const app : Application = express() ;
 
@@ -16,7 +16,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/',authRouter);
 app.use('/profile', profileRouter)
 app.use("/request", requestRouter)
-
+app.use('/user', userRouter)
 
 app.patch('/updateProfile', async (req: Request, res : Response) => { 
 

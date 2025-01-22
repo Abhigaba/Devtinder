@@ -8,11 +8,13 @@ interface Connection extends Document{
 const connectionSchema = new mongoose.Schema<Connection>({
     senderId : {
         type: mongoose.Schema.Types.ObjectId,
+        ref: "duser",
         required: true, 
     }  ,
 
     receiverId : {
         type: mongoose.Schema.Types.ObjectId,
+        ref: "duser",
         required: true, 
     },
 

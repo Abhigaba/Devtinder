@@ -46,3 +46,37 @@ requestRouter.get('/send/:status/:reqId', authMiddle, async (req: Request, res: 
     }
 
 }) 
+
+requestRouter.get('/review/:status/:reqId', authMiddle, async (req: Request, res: Response) => {
+
+    try { 
+            const requiredStatus = ["accepted", "rejected"] 
+
+            const status = req.params.status ; 
+            if (!requiredStatus.includes(status)) {
+                throw new Error('Status not valid')
+            }
+
+            const reqId = req.params.reqId
+            const getConnections = await connectionRequest.findOne({
+                senderId: req.params.reqId,
+                receiverId: req.user._id,
+                status: "interested"                
+            })
+
+            if (!getConnections) { 
+                throw new Error('Invalid request'); 
+            }
+
+            getConnections.status = status;
+            await getConnections.save() ;
+
+            res.json({
+                message : `Request Successfully ${status}`
+            })
+    } 
+    catch(error : any) { 
+        res.status(400).send(error.message);
+    }
+    
+})

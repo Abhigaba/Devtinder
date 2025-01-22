@@ -13,15 +13,6 @@ export const validateSignUp = (req : Request) => {
     if (!validator.isLength(password, { min: 8 }) && !validator.isStrongPassword(password)) {
         return false
     }
-
-    if (!validator.isLength(Firstname, { max: 20 })) {
-        return false    
-    }
-
-    if (!validator.isLength(Lastname, { max: 20 })) {
-        return false
-    }
-
     return true; 
 }
 
